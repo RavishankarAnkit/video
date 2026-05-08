@@ -1,9 +1,9 @@
 import streamlit as st
 from yt_dlp import YoutubeDL
+import os
 
 st.title("YouTube Video Downloader")
 
-# Video URL
 video_url = st.text_input("Paste YouTube Video URL")
 
 if video_url:
@@ -12,21 +12,33 @@ if video_url:
 
     if st.button("Download Video"):
 
-        ydl_opts = {
-            'format': 'mp4',
-            'outtmpl': 'downloaded_video.%(ext)s',
-        }
+        try:
 
-        with YoutubeDL(ydl_opts) as ydl:
-            ydl.download([video_url])
+            ydl_opts = {
+                'format': 'best',
+                'outtmpl': 'video.%(ext)s',
+                'noplaylist': True,
+                'quiet': True,
+            }
 
-        video_file = open("downloaded_video.mp4", "rb")
+            with YoutubeDL(ydl_opts) as ydl:
 
-        st.success("Video Downloaded")
+                info = ydl.extract_info(video_url, download=True)
 
-        st.download_button(
-            label="Click Here to Save Video",
-            data=video_file,
-            file_name="video.mp4",
-            mime="video/mp4"
-        )
+                filename = ydl.prepare_filename(info)
+
+            st.success("Download Completed")
+
+            with open(filename, "rb") as file:
+
+                st.download_button(
+                    label="Save Video",
+                    data=file,
+                    file_name=os.path.basename(filename),
+                    mime="video/mp4"
+                )
+
+        except Exception as e:
+
+            st.error("Video download failed")
+            st.write(e)
