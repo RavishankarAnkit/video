@@ -1,10 +1,11 @@
 import streamlit as st
 from yt_dlp import YoutubeDL
 import os
+import uuid
 
 st.title("YouTube Video Downloader")
 
-video_url = st.text_input("Paste YouTube Video URL")
+video_url = st.text_input("Paste YouTube URL")
 
 if video_url:
 
@@ -14,9 +15,12 @@ if video_url:
 
         try:
 
+            # Unique filename
+            unique_id = str(uuid.uuid4())
+
             ydl_opts = {
                 'format': 'best',
-                'outtmpl': 'video.%(ext)s',
+                'outtmpl': f'{unique_id}.%(ext)s',
                 'noplaylist': True,
                 'quiet': True,
             }
@@ -40,5 +44,5 @@ if video_url:
 
         except Exception as e:
 
-            st.error("Video download failed")
+            st.error("Download Failed")
             st.write(e)
